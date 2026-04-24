@@ -3,9 +3,7 @@ import Card from "../ui/Card";
 import { FaCircle, FaPersonBiking } from "react-icons/fa6";
 
 export default function SpeedCard() {
-  const { telemetry } = useCyGen();
-
-  if (!telemetry) return null;
+  const { telemetry, hasRealData } = useCyGen();
 
   return (
     <Card className="col-span-1">
@@ -15,13 +13,19 @@ export default function SpeedCard() {
           <span>RPM / Speed</span>
         </h3>
 
-        <div className="text-4xl font-bold text-[#953177]">{telemetry.rpm}</div>
+        <div
+          className={`text-4xl font-bold ${hasRealData ? "text-[#953177]" : "text-gray-400"}`}
+        >
+          {hasRealData ? telemetry.rpm : "—"}
+        </div>
 
-        <p className="text-sm text-gray-500">revolutions per minute</p>
+        <p className="text-sm text-gray-500">
+          {hasRealData ? "revolutions per minute" : "Waiting for data..."}
+        </p>
 
         <div
           className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-            telemetry.isPedaling
+            hasRealData && telemetry.isPedaling
               ? "bg-green-100 text-green-700"
               : "bg-gray-100 text-gray-600"
           }`}
@@ -29,10 +33,14 @@ export default function SpeedCard() {
           <span className="inline-flex items-center gap-2">
             <FaCircle
               className={
-                telemetry.isPedaling ? "text-green-500" : "text-gray-400"
+                hasRealData && telemetry.isPedaling
+                  ? "text-green-500"
+                  : "text-gray-400"
               }
             />
-            <span>{telemetry.isPedaling ? "Pedalling" : "Idle"}</span>
+            <span>
+              {hasRealData && telemetry.isPedaling ? "Pedalling" : "Idle"}
+            </span>
           </span>
         </div>
       </div>

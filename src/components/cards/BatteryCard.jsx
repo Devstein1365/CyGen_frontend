@@ -5,9 +5,7 @@ import StatusBadge from "../ui/StatusBadge";
 import { FaBatteryHalf } from "react-icons/fa6";
 
 export default function BatteryCard() {
-  const { telemetry } = useCyGen();
-
-  if (!telemetry) return null;
+  const { telemetry, hasRealData } = useCyGen();
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -31,22 +29,34 @@ export default function BatteryCard() {
             <span>Battery</span>
           </h3>
           <StatusBadge
-            text={telemetry.chargingStatus}
-            color={getStatusColor(telemetry.chargingStatus)}
+            text={hasRealData ? telemetry.chargingStatus : "No Data"}
+            color={
+              hasRealData
+                ? getStatusColor(telemetry.chargingStatus)
+                : "bg-gray-400"
+            }
           />
         </div>
 
-        <div className="text-4xl font-bold text-[#953177]">
-          {telemetry.battery}%
+        <div
+          className={`text-4xl font-bold ${hasRealData ? "text-[#953177]" : "text-gray-400"}`}
+        >
+          {hasRealData ? `${telemetry.battery}%` : "—"}
         </div>
 
-        <MetricsBar percentage={telemetry.battery} />
+        <MetricsBar percentage={hasRealData ? telemetry.battery : 0} />
 
         <div className="text-xs text-gray-500">
-          Status:{" "}
-          <span className="font-semibold text-gray-700">
-            {telemetry.chargingStatus}
-          </span>
+          {hasRealData ? (
+            <>
+              Status:{" "}
+              <span className="font-semibold text-gray-700">
+                {telemetry.chargingStatus}
+              </span>
+            </>
+          ) : (
+            <span className="text-gray-400 italic">Waiting for data...</span>
+          )}
         </div>
       </div>
     </Card>

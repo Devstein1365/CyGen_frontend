@@ -4,9 +4,7 @@ import LiveDot from "../ui/LiveDot";
 import { FaCircle, FaClock } from "react-icons/fa6";
 
 export default function SystemLogCard() {
-  const { telemetry, isConnected, formatLastUpdate } = useCyGen();
-
-  if (!telemetry) return null;
+  const { telemetry, isConnected, hasRealData, formatLastUpdate } = useCyGen();
 
   return (
     <Card className="col-span-1">
@@ -21,10 +19,14 @@ export default function SystemLogCard() {
 
         <div>
           <p className="text-xs text-gray-600 mb-1">Time to Full Battery</p>
-          <div className="text-3xl font-bold text-[#953177]">
-            {telemetry.etaToFull}
+          <div
+            className={`text-3xl font-bold ${hasRealData ? "text-[#953177]" : "text-gray-400"}`}
+          >
+            {hasRealData ? telemetry.etaToFull : "—"}
           </div>
-          <p className="text-xs text-gray-500">minutes</p>
+          <p className="text-xs text-gray-500">
+            {hasRealData ? "minutes" : "Demo mode"}
+          </p>
         </div>
 
         <div className="pt-2 border-t border-gray-200 space-y-2">
@@ -34,21 +36,27 @@ export default function SystemLogCard() {
               className={
                 isConnected
                   ? "text-green-600 font-semibold"
-                  : "text-red-600 font-semibold"
+                  : "text-gray-600 font-semibold"
               }
             >
               <span className="inline-flex items-center gap-2">
                 <FaCircle
-                  className={isConnected ? "text-green-500" : "text-red-500"}
+                  className={isConnected ? "text-green-500" : "text-gray-400"}
                 />
-                <span>{isConnected ? "Connected" : "Disconnected"}</span>
+                <span>
+                  {isConnected
+                    ? "Connected"
+                    : hasRealData
+                      ? "Disconnected"
+                      : "Waiting"}
+                </span>
               </span>
             </span>
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-gray-600">Last Update</span>
             <span className="text-gray-700 font-semibold">
-              {formatLastUpdate()}
+              {hasRealData ? formatLastUpdate() : "—"}
             </span>
           </div>
         </div>

@@ -5,23 +5,38 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   `http://${window.location.hostname || "localhost"}:5000`;
 
+// Default mock telemetry for initial UI display
+const DEFAULT_TELEMETRY = {
+  battery: 0,
+  chargingStatus: "idle",
+  rpm: 0,
+  isPedaling: false,
+  voltage: 0,
+  current: 0,
+  powerOutput: 0,
+  logs: [],
+  serverTimestamp: new Date().toISOString(),
+};
+
 export const CyGenProvider = ({ children }) => {
-  const [telemetry, setTelemetry] = useState(null);
+  const [telemetry, setTelemetry] = useState(DEFAULT_TELEMETRY);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [hasRealData, setHasRealData] = useState(false);
   const lastLoggedErrorRef = useRef("");
 
   const applyTelemetryResult = (result) => {
     if (!result) return;
 
     if (result.status === "waiting") {
-      setTelemetry(null);
+      setTelemetry(DEFAULT_TELEMETRY);
       setError(null);
       setLastUpdate(null);
-      setLoading(true);
+      setLoading(false);
       setIsConnected(false);
+      setHasRealData(false);
       return;
     }
 
@@ -37,9 +52,10 @@ export const CyGenProvider = ({ children }) => {
     setError(
       result.isConnected
         ? null
-        : "ESP8266 disconnected. Showing last known telemetry.",
+        : "ESP32 disconnected. Showing last known telemetry.",
     );
     setLoading(false);
+    setHasRealData(true);
   };
 
   // Fetch telemetry from backend
@@ -70,6 +86,7 @@ export const CyGenProvider = ({ children }) => {
         setError(nextError);
         setLoading(false);
         setIsConnected(false);
+        setHasRealData(false);
       }
     };
 
@@ -112,6 +129,7 @@ export const CyGenProvider = ({ children }) => {
     error,
     lastUpdate,
     isConnected,
+    hasRealData,
     formatLastUpdate,
     apiBaseUrl: API_BASE_URL,
   };
